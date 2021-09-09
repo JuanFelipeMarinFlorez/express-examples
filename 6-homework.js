@@ -16,7 +16,7 @@ app.use((req, res, next) => {
     if(password=="123456"){
       next();
     }else{
-      throw "Wrong password! Try again";
+      res.status(401).send("Wrong password");
     }
   } catch (error) {
     res.status(400).send("Error authenticating user");
