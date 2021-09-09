@@ -6,11 +6,21 @@ app.use(express.json());
 const port = 4000;
 
 app.use((req, res, next) => {
-  /**
-   * @TODO
-   * Check authorization headers and only allow users using password "123456"
-   */
-  next();
+  try {
+
+    const base64 = req.headers.authorization.substr("Basic ".length);
+    const auth = Buffer.from(base64, "base64").toString("utf-8");
+    const [username, password] = auth.split(":");
+    req.username=username;
+    req.password=password;
+    if(password=="123456"){
+      next();
+    }else{
+      throw "Wrong password! Try again";
+    }
+  } catch (error) {
+    res.status(400).send("Error authenticating user");
+  }
 });
 
 app.get("/", (req, res) => {
@@ -21,6 +31,20 @@ app.get("/book", (req, res) => {
   res.send(bookService.getAllBooks());
 });
 
+app.post("/Book",(req,res)=> {
+  res.send(bookService.addBook(req.body));
+});
+
+app.put("/Book/:id",(req,res) => {
+  res.send(bookService.editBook(req.params.id,req.body));
+
+}
+
+);
+
+app.delete("/Book/:id",(req,res)=>{
+  res.send(bookService.deleteBookById(req.params.id));
+});
 /**
  * @TODO
  * Use methods { addBook, editBook, deleteBookById } from bookService
